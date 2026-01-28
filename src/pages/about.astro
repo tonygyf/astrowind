@@ -7,7 +7,7 @@ import Steps2 from '~/components/widgets/Steps2.astro';
 import Layout from '~/layouts/PageLayout.astro';
 
 const metadata = {
-  title: 'About us',
+  title: '关于我的毕设项目',
 };
 ---
 
@@ -15,61 +15,58 @@ const metadata = {
   <!-- Hero Widget ******************* -->
 
   <Hero
-    tagline="About us"
+    tagline="多模式智能考勤系统"
     image={{
       src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Caos Image',
+      alt: '多模式智能考勤系统',
     }}
   >
     <Fragment slot="title">
-      Elevate your online presence with our <br />
-      <span class="text-accent dark:text-white"> Beautiful Website Templates</span>
+      Android + Serverless 轻量考勤
     </Fragment>
 
     <Fragment slot="subtitle">
-      Donec efficitur, ipsum quis congue luctus, mauris magna convallis mauris, eu auctor nisi lectus non augue. Donec
-      quis lorem non massa vulputate efficitur ac at turpis. Sed tincidunt ex a nunc convallis, et lobortis nisi tempus.
-      Suspendisse vitae nisi eget tortor luctus maximus sed non lectus.
+      GPS/二维码/人脸/手势签到，离线可用，自动防作弊，低成本零运维
     </Fragment>
   </Hero>
 
   <!-- Stats Widget ****************** -->
 
   <Stats
-    title="Statistics about us"
+    title="项目统计"
     stats={[
-      { title: 'Offices', amount: '4' },
-      { title: 'Employees', amount: '248' },
-      { title: 'Templates', amount: '12' },
-      { title: 'Awards', amount: '24' },
+      { title: '考勤模式', amount: '3+' },
+      { title: '开发周期', amount: '6个月' },
+      { title: '技术栈', amount: '5+' },
+      { title: '系统功能', amount: '20+' },
     ]}
   />
 
   <!-- Features3 Widget ************** -->
 
   <Features3
-    title="Our templates"
-    subtitle="Etiam scelerisque, enim eget vestibulum luctus, nibh mauris blandit nulla, nec vestibulum risus justo ut enim. Praesent lacinia diam et ante imperdiet euismod."
+    title="核心功能"
+    subtitle="现代移动考勤方案，Android MVVM + SQLite 离线签到，Cloudflare Workers + D1 Serverless 后端"
     columns={3}
     isBeforeContent={true}
     items={[
       {
-        title: 'Educational',
+        title: '多模式签到',
         description:
-          'Morbi faucibus luctus quam, sit amet aliquet felis tempor id. Cras augue massa, ornare quis dignissim a, molestie vel nulla.',
-        icon: 'tabler:template',
+          'GPS / 二维码 / 人脸 / 手势四种模式，灵活适配各种场景',
+        icon: 'tabler:scan',
       },
       {
-        title: 'Interior Design',
+        title: '离线支持',
         description:
-          'Vivamus porttitor, tortor convallis aliquam pretium, turpis enim consectetur elit, vitae egestas purus erat ac nunc nulla.',
-        icon: 'tabler:template',
+          'SQLite本地存储 + 云端同步，网络中断也能正常打卡',
+        icon: 'tabler:wifi-off',
       },
       {
-        title: 'Photography',
+        title: '自动异常检测',
         description:
-          'Duis sed lectus in nisl vehicula porttitor eget quis odio. Aliquam erat volutpat. Nulla eleifend nulla id sem fermentum.',
-        icon: 'tabler:template',
+          '智能识别异常打卡行为，自动标记和预警',
+        icon: 'tabler:shield-check',
       },
     ]}
   />
@@ -81,68 +78,97 @@ const metadata = {
     isAfterContent={true}
     items={[
       {
-        title: 'E-commerce',
+        title: '多角色管理',
         description:
-          'Rutrum non odio at vehicula. Proin ipsum justo, dignissim in vehicula sit amet, dignissim id quam. Sed ac tincidunt sapien.',
-        icon: 'tabler:template',
+          '学生签到 + 教师管理闭环，活动发布、异常标记、批量导入、报表导出',
+        icon: 'tabler:users',
       },
       {
-        title: 'Blog',
+        title: 'Serverless 后端',
         description:
-          'Nullam efficitur volutpat sem sed fringilla. Suspendisse et enim eu orci volutpat laoreet ac vitae libero.',
-        icon: 'tabler:template',
+          'Cloudflare Workers + D1，低延迟、高并发、零运维，轻量部署、低成本',
+        icon: 'tabler:cloud',
       },
       {
-        title: 'Business',
+        title: '统计报表',
         description:
-          'Morbi et elit finibus, facilisis justo ut, pharetra ipsum. Donec efficitur, ipsum quis congue luctus, mauris magna.',
-        icon: 'tabler:template',
+          '自动生成考勤统计报表，支持导出和数据分析',
+        icon: 'tabler:report',
       },
       {
-        title: 'Branding',
+        title: '防作弊机制',
         description:
-          'Suspendisse vitae nisi eget tortor luctus maximus sed non lectus. Cras malesuada pretium placerat. Nullam venenatis dolor a ante rhoncus.',
-        icon: 'tabler:template',
+          '多重验证机制，确保考勤数据的真实性和准确性',
+        icon: 'tabler:shield-lock',
       },
       {
-        title: 'Medical',
+        title: '高并发支持',
         description:
-          'Vestibulum malesuada lacus id nibh posuere feugiat. Nam volutpat nulla a felis ultrices, id suscipit mauris congue. In hac habitasse platea dictumst.',
-        icon: 'tabler:template',
+          '支持大规模并发访问，适合大型活动考勤',
+        icon: 'tabler:bolt',
       },
       {
-        title: 'Fashion Design',
+        title: '易部署',
         description:
-          'Maecenas eu tellus eget est scelerisque lacinia et a diam. Aliquam velit lorem, vehicula id fermentum et, rhoncus et purus.',
-        icon: 'tabler:template',
+          '一键部署，快速上线，无需复杂配置',
+        icon: 'tabler:rocket',
       },
     ]}
     image={{
-      src: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      alt: 'Colorful Image',
+      src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      alt: '数据分析图表',
     }}
   />
+
+  <!-- 毕设项目入口 -->
+  
+  <Hero
+    tagline="项目演示"
+    image={{
+      src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      alt: '系统后台',
+    }}
+  >
+    <Fragment slot="title">
+      体验完整的多模式考勤系统
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      一款基于 Android 的智能考勤系统，支持 GPS、二维码、人脸、手势多模式签到。采用 MVVM + SQLite 实现离线可用，
+      Cloudflare Workers + D1 构建 Serverless 后端，实现低延迟、高并发、零运维。
+    </Fragment>
+
+    <Fragment slot="actions">
+      <a
+        href="https://omni.gyf123.dpdns.org"
+        target="_blank"
+        class="btn btn-primary btn-lg w-full sm:w-auto"
+      >
+        访问毕设项目后台
+      </a>
+    </Fragment>
+  </Hero>
 
   <!-- Steps2 Widget ****************** -->
 
   <Steps2
-    title="Our values"
-    subtitle="Maecenas eu tellus eget est scelerisque lacinia et a diam. Aliquam velit lorem, vehicula id fermentum et, rhoncus et purus. Nulla facilisi. Vestibulum malesuada lacus."
+    title="技术架构"
+    subtitle="Android MVVM + SQLite 离线签到，Cloudflare Workers + D1 Serverless 后端，低延迟、高并发、零运维"
     items={[
       {
-        title: 'Customer-centric approach',
+        title: 'Android MVVM',
         description:
-          'Donec id nibh neque. Quisque et fermentum tortor. Fusce vitae dolor a mauris dignissim commodo. Ut eleifend luctus condimentum.',
+          '采用MVVM架构模式，代码结构清晰，易于维护和扩展',
       },
       {
-        title: 'Constant Improvement',
+        title: 'SQLite 离线存储',
         description:
-          'Phasellus laoreet fermentum venenatis. Vivamus dapibus pulvinar arcu eget mattis. Fusce eget mauris leo.',
+          '本地数据库支持，离线状态下也能正常记录考勤数据',
       },
       {
-        title: 'Ethical Practices',
+        title: 'Serverless 架构',
         description:
-          'Vestibulum imperdiet libero et lectus molestie, et maximus augue porta. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
+          'Cloudflare Workers + D1，无需服务器运维，自动扩缩容',
       },
     ]}
   />
@@ -150,30 +176,31 @@ const metadata = {
   <!-- Steps2 Widget ****************** -->
 
   <Steps2
-    title="Achievements"
-    subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla, sed porttitor est nibh at nulla."
+    title="项目价值"
+    subtitle="轻量部署、零运维、低成本，为企业提供高效便捷的考勤管理解决方案"
     isReversed={true}
     callToAction={{
-      text: 'See more',
-      href: '/',
+      text: '查看项目演示',
+      href: 'https://omni.gyf123.dpdns.org',
+      target: '_blank'
     }}
     items={[
       {
-        title: 'Global reach',
-        description: 'Nam malesuada urna in enim imperdiet tincidunt. Phasellus non tincidunt nisi, at elementum mi.',
-        icon: 'tabler:globe',
+        title: '轻量部署',
+        description: '一键部署，快速上线，无需复杂配置和服务器维护',
+        icon: 'tabler:rocket',
       },
       {
-        title: 'Positive customer feedback and reviews',
+        title: '零运维',
         description:
-          'Cras semper nulla leo, eget laoreet erat cursus sed. Praesent faucibus massa in purus iaculis dictum.',
-        icon: 'tabler:message-star',
+          'Serverless 架构，自动扩缩容，无需专人维护服务器',
+        icon: 'tabler:cloud',
       },
       {
-        title: 'Awards and recognition as industry experts',
+        title: '低成本',
         description:
-          'Phasellus lacinia cursus velit, eu malesuada magna pretium eu. Etiam aliquet tellus purus, blandit lobortis ex rhoncus vitae.',
-        icon: 'tabler:award',
+          '按量计费，无固定服务器成本，大幅降低企业考勤管理费用',
+        icon: 'tabler:coin',
       },
     ]}
   />
@@ -181,47 +208,57 @@ const metadata = {
   <!-- Features2 Widget ************** -->
 
   <Features2
-    title="Our locations"
-    tagline="Find us"
-    columns={4}
-    items={[
-      {
-        title: 'EE.UU',
-        description: '1234 Lorem Ipsum St, 12345, Miami',
-      },
-      {
-        title: 'Spain',
-        description: '5678 Lorem Ipsum St, 56789, Madrid',
-      },
-      {
-        title: 'Australia',
-        description: '9012 Lorem Ipsum St, 90123, Sydney',
-      },
-      {
-        title: 'Brazil',
-        description: '3456 Lorem Ipsum St, 34567, São Paulo',
-      },
-    ]}
-  />
-
-  <!-- Features2 Widget ************** -->
-
-  <Features2
-    title="Technical Support"
-    tagline="Contact us"
+    title="项目特色"
+    tagline="核心优势"
     columns={2}
     items={[
       {
-        title: 'Chat with us',
-        description:
-          'Integer luctus laoreet libero, auctor varius purus rutrum sit amet. Ut nec molestie nisi, quis eleifend mi.',
-        icon: 'tabler:messages',
+        title: '多模式集成',
+        description: '人脸识别、指纹识别、RFID卡片三种考勤方式无缝集成',
       },
       {
-        title: 'Call us',
+        title: '智能后台',
+        description: '功能完善的后台管理系统，支持数据统计分析',
+      },
+      {
+        title: '实时响应',
+        description: '考勤数据实时上传，异常情况即时预警',
+      },
+      {
+        title: '移动友好',
+        description: '响应式设计，完美适配各种设备屏幕',
+      },
+    ]}
+  />
+
+  <!-- Features2 Widget ************** -->
+
+  <Features2
+    title="技术支持"
+    tagline="联系我们"
+    columns={2}
+    items={[
+      {
+        title: '项目演示',
         description:
-          'Mauris faucibus finibus orci, in posuere elit viverra non. In hac habitasse platea dictumst. Cras lobortis metus a hendrerit congue.',
-        icon: 'tabler:headset',
+          '访问在线演示系统，体验完整的多模式考勤功能',
+        icon: 'tabler:external-link',
+        callToAction: {
+          text: '立即访问',
+          href: 'https://omni.gyf123.dpdns.org',
+          target: '_blank'
+        }
+      },
+      {
+        title: '源码查看',
+        description:
+          '查看项目源代码，了解技术实现细节',
+        icon: 'tabler:brand-github',
+        callToAction: {
+          text: 'GitHub',
+          href: 'https://github.com/tonygyf',
+          target: '_blank'
+        }
       },
     ]}
   />
