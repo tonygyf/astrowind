@@ -6,10 +6,8 @@ import Content from '~/components/widgets/Content.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import Features2 from '~/components/widgets/Features2.astro';
 import Features3 from '~/components/widgets/Features3.astro';
-import Testimonials from '~/components/widgets/Testimonials.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
-import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: '我的个人主页 - 软件工程学生',
@@ -69,6 +67,15 @@ const metadata = {
           href: 'https://vpn.gyf123.dpdns.org/admin',
         },
         description: '个人 VPN 节点管理后台，基于 edgetunnel 驱动。',
+      },
+      {
+        icon: 'tabler:world',
+        callToAction: {
+          target: '_blank',
+          text: 'VPNApp 网页',
+          href: 'https://vpnapp.gyf123.dpdns.org/',
+        },
+        description: 'VPNApp WebView 页面，快速连接与节点展示。',
       },
       {
         icon: 'tabler:notebook',
@@ -193,6 +200,12 @@ const metadata = {
         description: '使用mediapip的证件照生成器',
         icon: 'tabler:id',
         callToAction: { text: '查看源码', href: 'https://github.com/tonygyf/cursor-picture-demo2', icon: 'tabler:brand-github' },
+      },
+      {
+        title: 'V2Ray Simple VPN',
+        description: '基于 WebView 的简洁 VPN 页面，支持一键连接与节点展示',
+        icon: 'tabler:shield',
+        callToAction: { text: '查看源码', href: 'https://github.com/tonygyf/vpnapp', icon: 'tabler:brand-github' },
       },
       {
         title: 'Online Teach App',
