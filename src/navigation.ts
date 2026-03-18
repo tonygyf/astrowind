@@ -11,7 +11,7 @@ export const headerData = {
       href: getBlogPermalink(),
     },
     {
-      text: '关于',
+      text: '毕业设计',
       href: getPermalink('/about'),
     },
   ],
