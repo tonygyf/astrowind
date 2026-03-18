@@ -6,10 +6,10 @@ export const headerData = {
       text: '首页',
       href: getPermalink('/'),
     },
-    {
+    /* {
       text: '博客',
       href: getBlogPermalink(),
-    },
+    }, */
     {
       text: '毕业设计',
       href: getPermalink('/about'),
