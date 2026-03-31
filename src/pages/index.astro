@@ -28,6 +28,10 @@ const metadata = {
     title="你好，我是tonygyf"
     tagline="Java / Kotlin 开发者"
     actions={[{ variant: 'primary', text: 'GitHub 主页', href: 'https://github.com/tonygyf', icon: 'tabler:brand-github' }]}
+    image={{
+      src: 'https://githubcard.com/tonygyf.svg',
+      alt: 'tonygyf\'s GitHub stats card',
+    }}
   >
     <Fragment slot="subtitle">
       我来自<b>上海东华大学</b>。<br /> 
@@ -231,18 +235,6 @@ const metadata = {
       <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
     </Fragment>
   </Features2>
-
-  <!-- GitHub Stats Widget ****************** -->
-
-  <Content>
-    <Fragment slot="content">
-      <div class="flex justify-center">
-        <a href="https://github.com/tonygyf" target="_blank" rel="noopener noreferrer">
-          <img src="https://githubcard.com/tonygyf.svg" alt="tonygyf's GitHub stats card" class="rounded-md shadow-lg" />
-        </a>
-      </div>
-    </Fragment>
-  </Content>
 
   <!-- Content Widget **************** -->
   <!-- 
