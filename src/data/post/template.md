@@ -6,7 +6,9 @@ title: '在这里写下您的文章标题'
 # (可选) 文章摘要，用于在列表页显示
 excerpt: '在这里写下您的文章摘要，建议不要过长。'
 # (可选) 文章封面图片。可以是外部 URL (https://...) 或本地图片路径 (~/assets/images/...)
-image: 'https://your-image-url.com/image.jpg'
+# image: 'https://your-image-url.com/image.jpg'
+# (必须) 将此文件标记为草稿，构建时会忽略
+draft: true
 # (可选) 文章分类
 category: '技术分享'
 # (可选) 文章标签，可以有多个
