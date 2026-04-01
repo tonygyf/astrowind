@@ -2,6 +2,7 @@
 publishDate: 2026-03-31
 title: 'RSS：独立博客的「信息收件箱」神器'
 excerpt: 'RSS（Really Simple Syndication）是一种古老却依然强大的内容订阅标准。它本质上是一个标准的 XML 文件，网站每次发布新文章时，RSS Feed 会自动更新，包含标题、摘要、发布时间和原文链接。'
+image: '~/assets/images/rss.png'
 category: '博客'
 tags:
   - 'RSS'
