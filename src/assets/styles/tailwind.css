@@ -90,3 +90,46 @@
 .dd *:first-child {
   margin-top: 0;
 }
+
+/* Mobile text overflow fixes */
+@media (max-width: 640px) {
+  .text-4xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  
+  .text-5xl {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+  
+  h1, .text-6xl {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    word-wrap: break-word;
+  }
+  
+  .font-heading {
+    word-wrap: break-word;
+  }
+}
+
+/* Fix for mobile animation issues - ensure text is visible */
+@media (max-width: 768px) {
+  /* Remove opacity and animation classes that may cause text to disappear */
+  [class*="intersect"] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  
+  /* Ensure all text is visible on mobile */
+  .motion-safe\:md\:opacity-0 {
+    opacity: 1 !important;
+  }
+  
+  .motion-safe\:md\:intersect\:animate-fade {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
