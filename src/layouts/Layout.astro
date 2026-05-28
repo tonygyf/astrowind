@@ -43,6 +43,321 @@ const { language, textDirection } = I18N;
   <body class="antialiased text-default bg-page tracking-tight">
     <slot />
 
+    <script>
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      let lastRunAt = 0;
+      let scrollStopTimer = 0;
+      let cleanup: Array<() => void> = [];
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      const isDark = () => document.documentElement.classList.contains('dark');
+
+      const runIntro = () => {
+        const now = Date.now();
+        if (now - lastRunAt < 100) return;
+        lastRunAt = now;
+
+        const header = document.querySelector('header');
+        const title = document.querySelector('h1');
+        const subtitle = document.querySelector('[data-gsap="subtitle"]');
+        const actions = document.querySelectorAll('[data-gsap="actions"] > *');
+        const heroImage = document.querySelector('[data-gsap="hero-image"]');
+        const heroLogo = isDark() ? document.querySelector('.hero-logo-night') : document.querySelector('.hero-logo-day');
+        const metalWraps = document.querySelectorAll('[data-gsap="metal-wrap"]');
+        const progressRoots = document.querySelectorAll('[data-aw-progress-root]');
+
+        const killTargets = [
+          header,
+          title,
+          subtitle,
+          heroImage,
+          heroLogo,
+          ...(metalWraps.length ? Array.from(metalWraps) : []),
+          ...(actions.length ? Array.from(actions) : []),
+        ].filter(Boolean) as Element[];
+
+        if (!killTargets.length) return;
+
+        gsap.killTweensOf(killTargets);
+        ScrollTrigger.getAll().forEach((t) => t.kill());
+        cleanup.forEach((fn) => fn());
+        cleanup = [];
+
+        const setupProgressRing = () => {
+          const paths: Array<SVGGeometryElement> = [];
+          const rotators: Array<Element> = [];
+
+          progressRoots.forEach((root) => {
+            const path = root.querySelector('[data-aw-progress-path]');
+            if (path && path instanceof SVGGeometryElement) paths.push(path);
+
+            const rotator = root.querySelector('[data-aw-progress-rotate]');
+            if (rotator) rotators.push(rotator);
+          });
+
+          if (!paths.length && !rotators.length) return;
+
+          const lengths = paths.map((p) => p.getTotalLength());
+
+          paths.forEach((p, i) => {
+            const len = lengths[i] ?? 0;
+            p.style.strokeDasharray = `${len} ${len}`;
+          });
+
+          const applyTheme = () => {
+            const stroke = isDark() ? '#60a5fa' : '#111827';
+            const opacity = isDark() ? '0.55' : '0.35';
+            paths.forEach((p) => {
+              p.setAttribute('stroke', stroke);
+              p.setAttribute('stroke-opacity', opacity);
+            });
+          };
+
+          let raf = 0;
+          const update = () => {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+            const inv = 1 - p;
+
+            paths.forEach((path, i) => {
+              const len = lengths[i] ?? 0;
+              path.style.strokeDashoffset = `${len * inv}`;
+            });
+            rotators.forEach((el) => {
+              gsap.set(el, { rotation: p * 360, transformOrigin: '50% 50%' });
+            });
+          };
+
+          const schedule = () => {
+            if (raf) return;
+            raf = window.requestAnimationFrame(() => {
+              raf = 0;
+              applyTheme();
+              update();
+            });
+          };
+
+          schedule();
+          window.addEventListener('scroll', schedule, { passive: true });
+          window.addEventListener('resize', schedule, { passive: true });
+
+          cleanup.push(() => {
+            if (raf) window.cancelAnimationFrame(raf);
+            window.removeEventListener('scroll', schedule);
+            window.removeEventListener('resize', schedule);
+          });
+        };
+
+        setupProgressRing();
+
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+        if (header) {
+          tl.from(header, { y: -80, opacity: 0, duration: 0.6 });
+        }
+
+        if (heroLogo) {
+          tl.from(
+            heroLogo,
+            { opacity: 0, scale: 0.5, y: 20, duration: 0.9, ease: 'back.out(1.4)' },
+            header ? '-=0.35' : 0
+          );
+        }
+
+        if (title) {
+          tl.from(title, { y: 40, opacity: 0, duration: 0.7 }, header || heroLogo ? '-=0.3' : 0);
+        }
+
+        if (subtitle) {
+          tl.from(subtitle, { y: 30, opacity: 0, duration: 0.6 }, '-=0.4');
+        }
+
+        if (actions.length) {
+          tl.from(actions, { y: 20, opacity: 0, stagger: 0.1, duration: 0.5 }, '-=0.3');
+        }
+
+        if (heroImage) {
+          tl.from(heroImage, { scale: 0.95, opacity: 0, duration: 0.8 }, '-=0.4');
+        }
+
+        const createMetalScan = (wrap: Element, glint: Element) => {
+          let tween: gsap.core.Tween | null = null;
+          let call: gsap.core.Tween | null = null;
+
+          const startOnce = () => {
+            tween?.kill();
+            tween = gsap.fromTo(
+              glint,
+              { x: '-220%', opacity: 0, transformOrigin: '50% 50%' },
+              {
+                x: '420%',
+                opacity: 1,
+                duration: 1.8,
+                ease: 'power2.inOut',
+                onComplete: () => {
+                  tween = null;
+                  call?.kill();
+                  call = gsap.delayedCall(gsap.utils.random(3, 6), startOnce);
+                },
+              }
+            );
+          };
+
+          const stop = () => {
+            tween?.kill();
+            tween = null;
+            call?.kill();
+            call = null;
+          };
+
+          const setFromScroll = (progress: number, velocity: number) => {
+            stop();
+            const x = -220 + 640 * progress;
+            const metal = wrap.getAttribute('data-gsap-metal');
+            const maxRot = metal === 'site-logo' ? 10 : 3;
+            const r = Math.max(-maxRot, Math.min(maxRot, velocity / 250));
+            gsap.set(glint, { x: `${x}%`, opacity: 0.75 });
+            gsap.to(wrap, { rotation: r, duration: 0.15, overwrite: true, transformOrigin: '50% 50%' });
+          };
+
+          const resume = () => {
+            gsap.to(wrap, { rotation: 0, duration: 0.25, overwrite: true });
+            startOnce();
+          };
+
+          cleanup.push(() => {
+            stop();
+            gsap.killTweensOf(wrap);
+            gsap.killTweensOf(glint);
+          });
+
+          return { setFromScroll, resume, stop };
+        };
+
+        const setupNight = () => {
+          const metalSystems: Array<ReturnType<typeof createMetalScan>> = [];
+
+          metalWraps.forEach((wrap) => {
+            const glint = wrap.querySelector('[data-gsap="metal-glint"]');
+            if (glint) {
+              const sys = createMetalScan(wrap, glint);
+              metalSystems.push(sys);
+              sys.resume();
+            }
+
+            const glow = wrap.querySelector('[data-gsap="night-glow"]');
+            if (glow) {
+              gsap.set(glow, { opacity: 0.55 });
+              gsap.to(glow, { opacity: 0.9, duration: 2.2, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+            }
+          });
+
+          const onScroll = () => {
+            metalSystems.forEach((s) => s.stop());
+            if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
+            scrollStopTimer = window.setTimeout(() => {
+              metalSystems.forEach((s) => s.resume());
+            }, 240);
+          };
+
+          window.addEventListener('scroll', onScroll, { passive: true });
+          cleanup.push(() => window.removeEventListener('scroll', onScroll));
+
+          if (metalSystems.length) {
+            ScrollTrigger.create({
+              start: 0,
+              end: () => ScrollTrigger.maxScroll(window),
+              scrub: true,
+              onUpdate: (self: ScrollTrigger) => {
+                const p = self.progress || 0;
+                const v = self.getVelocity();
+                metalSystems.forEach((s) => s.setFromScroll(p, v));
+              },
+            });
+          }
+        };
+
+        const setupDay = () => {
+          progressRoots.forEach((root) => {
+            const dayImg = root.querySelector('img.site-logo-day, img.hero-logo-day');
+            if (!dayImg) return;
+
+            gsap.set(dayImg, { filter: 'drop-shadow(0 8px 24px rgba(0,0,0,.06))' });
+            gsap.to(dayImg, { y: -3, duration: 3.2, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+            gsap.to(dayImg, {
+              filter: 'drop-shadow(0 12px 28px rgba(0,0,0,.10))',
+              duration: 2.6,
+              repeat: -1,
+              yoyo: true,
+              ease: 'sine.inOut',
+            });
+
+            const onEnter = () => {
+              gsap.to(dayImg, { rotate: 1.5, duration: 0.6, ease: 'power3.out' });
+            };
+            const onLeave = () => {
+              gsap.to(dayImg, { rotate: 0, duration: 0.7, ease: 'power3.out' });
+            };
+
+            root.addEventListener('mouseenter', onEnter);
+            root.addEventListener('mouseleave', onLeave);
+            cleanup.push(() => {
+              root.removeEventListener('mouseenter', onEnter);
+              root.removeEventListener('mouseleave', onLeave);
+            });
+          });
+        };
+
+        if (isDark()) {
+          setupNight();
+        } else {
+          setupDay();
+        }
+
+        if (heroImage) {
+          gsap.to(heroImage, {
+            y: -60,
+            scale: 0.98,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: heroImage,
+              start: 'top 70%',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+
+        metalWraps.forEach((wrap) => {
+          const metal = wrap.getAttribute('data-gsap-metal');
+          if (metal !== 'hero-logo') return;
+          gsap.to(wrap, {
+            y: -30,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: wrap,
+              start: 'top 90%',
+              end: 'bottom 10%',
+              scrub: true,
+            },
+          });
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runIntro, { once: true });
+      } else {
+        runIntro();
+      }
+
+      document.addEventListener('astro:page-load', runIntro);
+      const observer = new MutationObserver(() => runIntro());
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    </script>
+
     <BasicScripts />
   </body>
 </html>

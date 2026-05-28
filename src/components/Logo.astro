@@ -1,9 +1,69 @@
 ---
+import Image from '~/components/common/Image.astro';
 import { SITE } from 'astrowind:config';
 ---
 
-<span
-  class="self-center ml-2 rtl:ml-0 rtl:mr-2 text-2xl md:text-xl font-bold text-gray-900 whitespace-nowrap dark:text-white"
->
-  🚀 {SITE?.name}
-</span>
+<div class="flex items-center">
+  <div class="relative inline-flex items-center justify-center w-10 h-10 md:w-11 md:h-11" data-aw-progress-root>
+    <svg
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-0 z-0"
+      viewBox="0 0 100 100"
+      style="transform: rotate(-90deg); transform-origin: 50% 50%;"
+    >
+      <circle
+        cx="50"
+        cy="50"
+        r="47"
+        fill="transparent"
+        stroke="rgba(148,163,184,0.25)"
+        stroke-width="6"
+      />
+      <circle
+        cx="50"
+        cy="50"
+        r="47"
+        fill="transparent"
+        stroke="#111827"
+        stroke-width="6"
+        stroke-linecap="round"
+        data-aw-progress-path
+      />
+    </svg>
+
+    <div class="relative z-10 inline-flex items-center justify-center w-full h-full" style="will-change: transform;" data-aw-progress-rotate>
+      <div class="relative overflow-hidden rounded-full w-full h-full" data-gsap="metal-wrap" data-gsap-metal="site-logo">
+        <span
+          aria-hidden="true"
+          class="pointer-events-none absolute -inset-10 opacity-0 hidden dark:block"
+          data-gsap="night-glow"
+          style="background: radial-gradient(circle, rgba(59,130,246,.18) 0%, transparent 70%); z-index: 0;"
+        />
+        <Image
+          src="~/assets/images/gyf-logo.png"
+          alt={SITE?.name}
+          class="relative z-10 w-full h-full site-logo-img site-logo-day dark:hidden"
+          style="object-fit: contain; object-position: center; width: 100%; height: 100%;"
+          width={80}
+          height={80}
+          loading="eager"
+        />
+        <Image
+          src="~/assets/images/logo-blue.png"
+          alt={SITE?.name}
+          class="relative z-10 w-full h-full site-logo-img site-logo-night hidden dark:block"
+          style="object-fit: contain; object-position: center; width: 100%; height: 100%;"
+          width={80}
+          height={80}
+          loading="eager"
+        />
+        <span
+          aria-hidden="true"
+          class="pointer-events-none absolute opacity-0 hidden dark:block"
+          data-gsap="metal-glint"
+          style="top: -55%; left: -150%; width: 95%; height: 240%; transform: rotate(25deg); background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.10) 32%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0.10) 68%, transparent 100%); mix-blend-mode: screen; filter: blur(4px) drop-shadow(0 0 16px rgba(96,165,250,0.95)); z-index: 20;"
+        />
+      </div>
+    </div>
+  </div>
+</div>

@@ -41,14 +41,51 @@ const _image = await findImage(props.src);
 
 let image: ImageType | undefined = undefined;
 
+const getFallbackAttributes = (): HTMLAttributes<'img'> => {
+  const allowed = new Set([
+    'alt',
+    'class',
+    'id',
+    'title',
+    'width',
+    'height',
+    'loading',
+    'decoding',
+    'sizes',
+    'style',
+    'srcset',
+    'fetchpriority',
+  ]);
+
+  const attributes: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value === undefined || value === null) continue;
+    if (allowed.has(key) || key.startsWith('aria-') || key.startsWith('data-')) {
+      attributes[key] = value;
+    }
+  }
+
+  return attributes as HTMLAttributes<'img'>;
+};
+
 if (
   typeof _image === 'string' &&
   (_image.startsWith('http://') || _image.startsWith('https://')) &&
   isUnpicCompatible(_image)
 ) {
-  image = await getImagesOptimized(_image, props, unpicOptimizer);
+  try {
+    image = await getImagesOptimized(_image, props, unpicOptimizer);
+  } catch {
+    image = { src: _image, attributes: getFallbackAttributes() };
+  }
 } else if (_image) {
-  image = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+  try {
+    image = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+  } catch {
+    if (typeof _image === 'string') {
+      image = { src: _image, attributes: getFallbackAttributes() };
+    }
+  }
 }
 ---
 
