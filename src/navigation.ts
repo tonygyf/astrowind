@@ -11,6 +11,10 @@ export const headerData = {
       href: getBlogPermalink(),
     },
     {
+      text: '邮箱清单',
+      href: getPermalink('/email-usage'),
+    },
+    {
       text: '毕业设计',
       href: getPermalink('/about'),
     },
