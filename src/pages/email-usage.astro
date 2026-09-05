@@ -63,6 +63,21 @@ const metadata = {
             </div>
 
             <div class="mt-6">
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">月份使用情况</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">按月保存 JSON，并汇总每个月的使用进度</p>
+                </div>
+              </div>
+              <div
+                id="monthlyOverview"
+                class="space-y-2 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-3"
+              >
+                <p class="text-sm text-slate-500 dark:text-slate-400">暂无月份记录</p>
+              </div>
+            </div>
+
+            <div class="mt-6">
               <label for="monthPicker" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
                 >统计月份</label
               >
@@ -258,6 +273,7 @@ const metadata = {
       const statUsed = document.getElementById('statUsed');
       const statUnused = document.getElementById('statUnused');
       const storageStatus = document.getElementById('storageStatus');
+      const monthlyOverview = document.getElementById('monthlyOverview');
       const exportButton = document.getElementById('exportButton');
       const importInput = document.getElementById('importInput');
       const seedButton = document.getElementById('seedButton');
@@ -265,6 +281,7 @@ const metadata = {
 
       const today = new Date();
       const defaultMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      const EMPTY_MONTH_ENTRY = { used: false, monthNote: '' };
 
       const presetEmails = [
         {
@@ -356,27 +373,95 @@ const metadata = {
       filterMode.value = state.filter || 'all';
       keywordInput.value = state.keyword || '';
 
+      function normalizeMonthEntry(entry) {
+        return {
+          used: Boolean(entry && entry.used),
+          monthNote: entry && typeof entry.monthNote === 'string' ? entry.monthNote : '',
+        };
+      }
+
+      function normalizeMonthlyRecords(records) {
+        if (!records || typeof records !== 'object') return {};
+
+        return Object.entries(records).reduce((acc, [month, record]) => {
+          if (!month) return acc;
+          const entries =
+            record && typeof record === 'object' && record.entries && typeof record.entries === 'object'
+              ? record.entries
+              : {};
+
+          acc[month] = {
+            entries: Object.entries(entries).reduce((entryAcc, [itemId, entry]) => {
+              if (!itemId) return entryAcc;
+              entryAcc[itemId] = normalizeMonthEntry(entry);
+              return entryAcc;
+            }, {}),
+          };
+
+          return acc;
+        }, {});
+      }
+
+      function migrateLegacyMonthlyRecords(emails) {
+        return emails.reduce((acc, item) => {
+          const usage = item && item.usage && typeof item.usage === 'object' ? item.usage : {};
+
+          Object.entries(usage).forEach(([month, entry]) => {
+            if (!month) return;
+            if (!acc[month]) {
+              acc[month] = { entries: {} };
+            }
+            acc[month].entries[item.id] = normalizeMonthEntry(entry);
+          });
+
+          return acc;
+        }, {});
+      }
+
+      function normalizeEmails(emails) {
+        if (!Array.isArray(emails)) return presetEmails;
+
+        return emails.map((item) => ({
+          ...item,
+          relatedAccounts: Array.isArray(item.relatedAccounts) ? item.relatedAccounts : [],
+        }));
+      }
+
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) {
-            return { emails: presetEmails, selectedMonth: defaultMonth, filter: 'all', keyword: '' };
+            return {
+              emails: presetEmails,
+              selectedMonth: defaultMonth,
+              filter: 'all',
+              keyword: '',
+              monthlyRecords: {},
+            };
           }
           const parsed = JSON.parse(raw);
+          const emails = normalizeEmails(parsed.emails);
+          const monthlyRecords =
+            parsed.monthlyRecords && typeof parsed.monthlyRecords === 'object'
+              ? normalizeMonthlyRecords(parsed.monthlyRecords)
+              : migrateLegacyMonthlyRecords(emails);
+
           return {
-            emails: Array.isArray(parsed.emails)
-              ? parsed.emails.map((item) => ({
-                  ...item,
-                  relatedAccounts: Array.isArray(item.relatedAccounts) ? item.relatedAccounts : [],
-                }))
-              : presetEmails,
+            emails,
             selectedMonth: parsed.selectedMonth || defaultMonth,
             filter: parsed.filter || 'all',
             keyword: parsed.keyword || '',
+            monthlyRecords,
           };
         } catch (error) {
           console.error('Failed to load email usage data:', error);
-          return { emails: presetEmails, selectedMonth: defaultMonth, filter: 'all', keyword: '' };
+          return {
+            emails: presetEmails,
+            selectedMonth: defaultMonth,
+            filter: 'all',
+            keyword: '',
+            monthlyRecords: {},
+          };
         }
       }
 
@@ -403,6 +488,14 @@ const metadata = {
         return monthPicker.value || defaultMonth;
       }
 
+      function getMonthEntries(month) {
+        return state.monthlyRecords?.[month]?.entries || {};
+      }
+
+      function getMonthEntry(itemId, month) {
+        return normalizeMonthEntry(getMonthEntries(month)[itemId] || EMPTY_MONTH_ENTRY);
+      }
+
       function parseRelatedAccounts(value) {
         return String(value || '')
           .split(/[\/,，\n\r\t ]+/)
@@ -411,11 +504,71 @@ const metadata = {
       }
 
       function isUsedThisMonth(item, month) {
-        return Boolean(item.usage && item.usage[month] && item.usage[month].used);
+        return getMonthEntry(item.id, month).used;
       }
 
       function getMonthNote(item, month) {
-        return item.usage && item.usage[month] ? item.usage[month].monthNote || '' : '';
+        return getMonthEntry(item.id, month).monthNote;
+      }
+
+      function getMonthStats(month) {
+        const total = state.emails.length;
+        const used = state.emails.filter((item) => isUsedThisMonth(item, month)).length;
+        return {
+          total,
+          used,
+          unused: Math.max(total - used, 0),
+          percentage: total > 0 ? Math.round((used / total) * 100) : 0,
+        };
+      }
+
+      function getKnownMonths() {
+        const months = new Set([currentMonth(), ...(Object.keys(state.monthlyRecords || {}) || [])]);
+        return Array.from(months).filter(Boolean).sort((a, b) => b.localeCompare(a));
+      }
+
+      function renderMonthlyOverview() {
+        const months = getKnownMonths();
+
+        if (months.length === 0) {
+          monthlyOverview.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">暂无月份记录</p>';
+          return;
+        }
+
+        monthlyOverview.innerHTML = months
+          .map((month) => {
+            const stats = getMonthStats(month);
+            const isCurrent = month === currentMonth();
+            return `
+              <button
+                type="button"
+                data-action="pick-month"
+                data-month="${escapeHtml(month)}"
+                class="w-full rounded-xl border px-3 py-3 text-left transition-colors ${
+                  isCurrent
+                    ? 'border-blue-200 bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/30'
+                    : 'border-slate-200 bg-white hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-800/70'
+                }"
+              >
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">${escapeHtml(month)}</div>
+                    <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      已用 ${stats.used} / ${stats.total}，未用 ${stats.unused}
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+                    isCurrent
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
+                      : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                  }">
+                    ${stats.percentage}%
+                  </span>
+                </div>
+              </button>
+            `;
+          })
+          .join('');
       }
 
       function filteredEmails() {
@@ -438,9 +591,7 @@ const metadata = {
 
       function renderStats() {
         const month = currentMonth();
-        const total = state.emails.length;
-        const used = state.emails.filter((item) => isUsedThisMonth(item, month)).length;
-        const unused = total - used;
+        const { total, used, unused } = getMonthStats(month);
 
         statTotal.textContent = String(total);
         statUsed.textContent = String(used);
@@ -451,6 +602,7 @@ const metadata = {
         const month = currentMonth();
         const items = filteredEmails();
         renderStats();
+        renderMonthlyOverview();
 
         resultSummary.textContent = `当前月份 ${month}，共显示 ${items.length} / ${state.emails.length} 个邮箱`;
 
@@ -524,18 +676,17 @@ const metadata = {
 
       function upsertMonthUsage(itemId, updater) {
         const month = currentMonth();
-        state.emails = state.emails.map((item) => {
-          if (item.id !== itemId) return item;
-          const usage = item.usage || {};
-          const current = usage[month] || { used: false, monthNote: '' };
-          return {
-            ...item,
-            usage: {
-              ...usage,
-              [month]: updater(current),
+        const monthRecord = state.monthlyRecords[month] || { entries: {} };
+        const current = getMonthEntry(itemId, month);
+        state.monthlyRecords = {
+          ...state.monthlyRecords,
+          [month]: {
+            entries: {
+              ...monthRecord.entries,
+              [itemId]: normalizeMonthEntry(updater(current)),
             },
-          };
-        });
+          },
+        };
         saveState();
         renderList();
       }
@@ -563,7 +714,6 @@ const metadata = {
           relatedAccounts,
           note,
           createdAt: new Date().toISOString(),
-          usage: {},
         });
 
         saveState();
@@ -616,6 +766,12 @@ const metadata = {
         if (!id) return;
 
         state.emails = state.emails.filter((item) => item.id !== id);
+        state.monthlyRecords = Object.entries(state.monthlyRecords).reduce((acc, [month, record]) => {
+          const entries = { ...(record?.entries || {}) };
+          delete entries[id];
+          acc[month] = { entries };
+          return acc;
+        }, {});
         saveState();
         renderList();
       });
@@ -625,24 +781,25 @@ const metadata = {
         state.emails = presetEmails.map((item) => ({
           ...item,
           relatedAccounts: [...(item.relatedAccounts || [])],
-          usage: {},
         }));
+        state.monthlyRecords = {};
         saveState();
         renderList();
       });
 
       clearUnusedButton.addEventListener('click', () => {
         const month = currentMonth();
-        state.emails = state.emails.map((item) => ({
-          ...item,
-          usage: {
-            ...(item.usage || {}),
-            [month]: {
-              ...(item.usage?.[month] || {}),
-              used: false,
-            },
-          },
-        }));
+        const entries = state.emails.reduce((acc, item) => {
+          acc[item.id] = {
+            ...getMonthEntry(item.id, month),
+            used: false,
+          };
+          return acc;
+        }, {});
+        state.monthlyRecords = {
+          ...state.monthlyRecords,
+          [month]: { entries },
+        };
         saveState();
         renderList();
       });
@@ -666,16 +823,16 @@ const metadata = {
         try {
           const text = await file.text();
           const parsed = JSON.parse(text);
+          const emails = normalizeEmails(parsed.emails);
           state = {
-            emails: Array.isArray(parsed.emails)
-              ? parsed.emails.map((item) => ({
-                  ...item,
-                  relatedAccounts: Array.isArray(item.relatedAccounts) ? item.relatedAccounts : [],
-                }))
-              : [],
+            emails,
             selectedMonth: parsed.selectedMonth || currentMonth(),
             filter: parsed.filter || 'all',
             keyword: '',
+            monthlyRecords:
+              parsed.monthlyRecords && typeof parsed.monthlyRecords === 'object'
+                ? normalizeMonthlyRecords(parsed.monthlyRecords)
+                : migrateLegacyMonthlyRecords(emails),
           };
           monthPicker.value = state.selectedMonth;
           filterMode.value = state.filter;
@@ -688,6 +845,22 @@ const metadata = {
         } finally {
           importInput.value = '';
         }
+      });
+
+      monthlyOverview.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        const button = target.closest('[data-action="pick-month"]');
+        if (!(button instanceof HTMLElement)) return;
+
+        const month = button.dataset.month;
+        if (!month) return;
+
+        state.selectedMonth = month;
+        monthPicker.value = month;
+        saveState();
+        renderList();
       });
 
       renderList();
