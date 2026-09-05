@@ -111,7 +111,7 @@ const metadata = {
 
           <div class="space-y-6">
             <section
-              class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm"
+              class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm lg:flex lg:max-h-[calc(100vh-11rem)] lg:min-h-[28rem] lg:flex-col"
             >
               <div class="flex flex-col md:flex-row md:items-end gap-4">
                 <div class="flex-1">
@@ -204,7 +204,7 @@ const metadata = {
             </section>
 
             <section
-              class="rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm"
+              class="flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 p-6 shadow-sm backdrop-blur h-[58vh] min-h-[24rem] md:h-[62vh] lg:h-[calc(100vh-12rem)] lg:min-h-[32rem]"
             >
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
                 <div>
@@ -220,17 +220,19 @@ const metadata = {
                 </button>
               </div>
 
-              <div
-                id="emptyState"
-                class="hidden rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-10 text-center"
-              >
-                <p class="text-lg font-medium text-slate-900 dark:text-slate-100">还没有邮箱记录</p>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                  先添加几个邮箱，或者点上面的“恢复预设清单”。
-                </p>
-              </div>
+              <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 md:pr-2">
+                <div
+                  id="emptyState"
+                  class="hidden rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-10 text-center"
+                >
+                  <p class="text-lg font-medium text-slate-900 dark:text-slate-100">还没有邮箱记录</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    先添加几个邮箱，或者点上面的“恢复预设清单”。
+                  </p>
+                </div>
 
-              <div id="emailList" class="grid gap-4"></div>
+                <div id="emailList" class="grid gap-4"></div>
+              </div>
             </section>
           </div>
         </div>
@@ -269,6 +271,14 @@ const metadata = {
           id: crypto.randomUUID(),
           email: '1563426958@qq.com',
           tag: 'QQ',
+          relatedAccounts: [],
+          createdAt: new Date().toISOString(),
+          usage: {},
+        },
+        {
+          id: crypto.randomUUID(),
+          email: 'gyf121382026@163.com',
+          tag: '163',
           relatedAccounts: [],
           createdAt: new Date().toISOString(),
           usage: {},
